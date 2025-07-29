@@ -72,6 +72,21 @@ func updateSystemTrayMenu(desk desktop.App) {
 	}
 	menuItems = append(menuItems, enabledItem)
 
+	// Auto-start toggle
+	autostartItem := fyne.NewMenuItem("开机不启动", func() {
+		newAutoStart := !settings.AutoStart
+		if err := configManager.SetAutoStart(newAutoStart); err != nil {
+			log.Printf("更新自启动状态失败: %v", err)
+		} else {
+			log.Printf("自启动状态已更改为: %v", newAutoStart)
+			updateSystemTrayMenu(desk)
+		}
+	})
+	if settings.AutoStart {
+		autostartItem.Label = "✓ 开机自启"
+	}
+	menuItems = append(menuItems, autostartItem)
+
 	menuItems = append(menuItems, fyne.NewMenuItemSeparator())
 
 	// Profile list

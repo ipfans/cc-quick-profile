@@ -8,15 +8,17 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/ipfans/cc-quick-profile/autostart"
 	"github.com/ipfans/cc-quick-profile/claude"
 	"github.com/ipfans/cc-quick-profile/models"
 )
 
 // Manager handles loading and saving application settings
 type Manager struct {
-	configPath    string
-	settings      *models.Settings
-	claudeManager *claude.Manager
+	configPath       string
+	settings         *models.Settings
+	claudeManager    *claude.Manager
+	autostartManager autostart.Manager
 }
 
 // NewManager creates a new configuration manager
@@ -32,9 +34,21 @@ func NewManager() (*Manager, error) {
 		return nil, fmt.Errorf("failed to initialize Claude manager: %w", err)
 	}
 
+	// Initialize autostart manager
+	executablePath, err := os.Executable()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get executable path: %w", err)
+	}
+
+	autostartManager, err := autostart.NewManager("cc-quick-profile", executablePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize autostart manager: %w", err)
+	}
+
 	m := &Manager{
-		configPath:    configPath,
-		claudeManager: claudeManager,
+		configPath:       configPath,
+		claudeManager:    claudeManager,
+		autostartManager: autostartManager,
 	}
 
 	// Load existing config or create default
@@ -64,9 +78,24 @@ func NewManager() (*Manager, error) {
 		return nil, fmt.Errorf("failed to check Claude auth config: %w", err)
 	}
 
-	// If actual Claude auth config doesn't match our settings, update and save
+	// Check autostart status and sync with current settings
+	autostartEnabled, err := autostartManager.IsEnabled()
+	if err != nil {
+		return nil, fmt.Errorf("failed to check autostart status: %w", err)
+	}
+
+	// If actual states don't match our settings, update and save
+	needsSave := false
 	if m.settings.Enabled != hasAuthConfig {
 		m.settings.Enabled = hasAuthConfig
+		needsSave = true
+	}
+	if m.settings.AutoStart != autostartEnabled {
+		m.settings.AutoStart = autostartEnabled
+		needsSave = true
+	}
+
+	if needsSave {
 		if err := m.Save(); err != nil {
 			return nil, fmt.Errorf("failed to save updated config: %w", err)
 		}
@@ -226,6 +255,23 @@ func (m *Manager) SetActiveProfile(name string) error {
 			if err := m.claudeManager.SetAuthConfig(activeProfile.APIKey, activeProfile.APIURL); err != nil {
 				return fmt.Errorf("failed to set Claude auth config: %w", err)
 			}
+		}
+	}
+
+	return m.Save()
+}
+
+// SetAutoStart sets the auto-start state and updates system auto-start configuration
+func (m *Manager) SetAutoStart(enabled bool) error {
+	m.settings.AutoStart = enabled
+
+	if enabled {
+		if err := m.autostartManager.Enable(); err != nil {
+			return fmt.Errorf("failed to enable autostart: %w", err)
+		}
+	} else {
+		if err := m.autostartManager.Disable(); err != nil {
+			return fmt.Errorf("failed to disable autostart: %w", err)
 		}
 	}
 

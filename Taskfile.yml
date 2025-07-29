@@ -89,3 +89,11 @@ tasks:
       - task: fmt
       - task: lint
       - task: test
+
+  package:darwin:
+    desc: Package macOS app (unsigned for development)
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - fyne package --os darwin --name "CC Quick Profile" --icon assets/icon.png
+      - 7z a -tzip {{.BUILD_DIR}}/{{.APP_NAME}}-darwin.zip CC\ Quick\ Profile.app
+      - rm -rf CC\ Quick\ Profile.app

@@ -10,15 +10,17 @@ type Profile struct {
 
 // Settings represents the application settings
 type Settings struct {
-	Enabled  bool      `json:"enabled"`  // Global enable/disable state
-	Profiles []Profile `json:"profiles"` // List of configured profiles
+	Enabled   bool      `json:"enabled"`   // Global enable/disable state
+	AutoStart bool      `json:"autoStart"` // Auto-start on system boot
+	Profiles  []Profile `json:"profiles"`  // List of configured profiles
 }
 
 // NewSettings creates a new Settings instance with default values
 func NewSettings() *Settings {
 	return &Settings{
-		Enabled:  true,
-		Profiles: []Profile{},
+		Enabled:   true,
+		AutoStart: false,
+		Profiles:  []Profile{},
 	}
 }
 
