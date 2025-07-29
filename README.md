@@ -2,6 +2,8 @@
 
 A cross-platform system tray GUI application that allows you to quickly switch between Claude Code profiles. Easily manage multiple API configurations and switch between them with a single click.
 
+**You need to manually restart Claude Code for the new profile to take effect.**
+
 ## Features
 
 - 🔄 **Quick Profile Switching**: Switch Claude Code profiles instantly from system tray
@@ -15,7 +17,7 @@ A cross-platform system tray GUI application that allows you to quickly switch b
 ## Supported Platforms
 
 - ✅ Windows (x64, ARM64)
-- ✅ macOS (Intel, Apple Silicon)  
+- ✅ macOS (Intel, Apple Silicon)
 - ✅ Linux (x64, ARM64)
 
 ## Requirements
@@ -26,11 +28,13 @@ A cross-platform system tray GUI application that allows you to quickly switch b
 ## Installation
 
 ### From Source
+
 ```bash
 go install github.com/ipfans/cc-quick-profile@latest
 ```
 
 ### From Releases
+
 Download pre-built binaries from the [releases page](https://github.com/ipfans/cc-quick-profile/releases).
 
 ## Quick Start
@@ -42,17 +46,20 @@ Download pre-built binaries from the [releases page](https://github.com/ipfans/c
    - **API URL**: Your Claude API endpoint
    - **API Key**: Your authentication token
 4. **Activate the profile** - Click on the profile name in the tray menu
-5. **Start using Claude Code** with your selected profile!
+5. **Restart Claude Code** - You need to manually restart Claude Code for the new profile to take effect
+6. **Start using Claude Code** with your selected profile!
 
 ## Configuration
 
 The application manages two types of settings:
 
 ### Application Settings
+
 - **Windows**: `%APPDATA%\cc-quick-profile\settings.json`
 - **macOS/Linux**: `$HOME/.config/cc-quick-profile/settings.json`
 
 ### Claude Code Integration
+
 - **All platforms**: `$HOME/.claude/settings.json` (managed automatically)
 - Sets `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL` environment variables
 
@@ -61,6 +68,7 @@ The application manages two types of settings:
 This project uses [Task](https://taskfile.dev) for build automation.
 
 ### Common Commands
+
 ```bash
 # Show available tasks
 task
@@ -79,6 +87,7 @@ task check
 ```
 
 ### Project Structure
+
 ```
 ├── main.go              # Application entry point and system tray logic
 ├── assets/              # Embedded resources (icons, templates)
@@ -94,7 +103,7 @@ task check
 
 1. **Profile Storage**: Your profiles are stored locally in a JSON configuration file
 2. **System Tray Integration**: The application runs in the background with a system tray icon
-3. **Claude Integration**: When you activate a profile, the app updates Claude Code's settings automatically
+3. **Claude Integration**: When you activate a profile, the app updates Claude Code's settings automatically (requires Claude Code restart to take effect)
 4. **Cross-Platform**: Built with Fyne, ensuring consistent behavior across all supported platforms
 
 ## Contributing
