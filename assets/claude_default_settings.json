@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "env": {
+    "DISABLE_TELEMETRY": "1"
+  }
+}

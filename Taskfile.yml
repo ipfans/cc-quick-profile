@@ -1,0 +1,91 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  APP_NAME: cc-quick-profile
+  BUILD_DIR: ./build
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the application
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}}
+    sources:
+      - ./**/*.go
+      - go.mod
+      - go.sum
+
+  build:all:
+    desc: Build for all platforms
+    deps: [clean]
+    cmds:
+      - task: build:windows
+      - task: build:darwin
+      - task: build:linux
+
+  build:windows:
+    desc: Build for Windows
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - GOOS=windows GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-amd64.exe
+      - GOOS=windows GOARCH=arm64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-arm64.exe
+
+  build:darwin:
+    desc: Build for macOS
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - GOOS=darwin GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-amd64
+      - GOOS=darwin GOARCH=arm64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-arm64
+
+  build:linux:
+    desc: Build for Linux
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - GOOS=linux GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-amd64
+      - GOOS=linux GOARCH=arm64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-arm64
+
+  run:
+    desc: Build and run the application
+    deps: [build]
+    cmds:
+      - "{{.BUILD_DIR}}/{{.APP_NAME}}"
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+
+  deps:
+    desc: Download dependencies
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
+  lint:
+    desc: Run linter
+    cmds:
+      - "golangci-lint run || echo 'Install golangci-lint: https://golangci-lint.run/usage/install/'"
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  check:
+    desc: Run all checks (fmt, lint, test)
+    cmds:
+      - task: fmt
+      - task: lint
+      - task: test
